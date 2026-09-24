@@ -22,12 +22,13 @@ jobs:
           java-version: "17"
           distribution: "temurin"
 
-      - name: Install dependencies
+      - name: Install Linux dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
             git zip unzip \
-            autoconf automake libtool libltdl-dev \
+            openjdk-17-jdk \
+            autoconf libtool automake libltdl-dev \
             pkg-config \
             zlib1g-dev \
             libncurses5-dev libncursesw5-dev \
@@ -39,22 +40,16 @@ jobs:
       - name: Install Rust
         run: |
           curl https://sh.rustup.rs -sSf | sh -s -- -y
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
       - name: Install Buildozer
         run: |
           python -m pip install --upgrade pip
-          python -m pip install --upgrade buildozer
-
-      - name: Clean old build
-        run: |
-          buildozer android clean || true
-          rm -rf .buildozer
-          rm -rf bin
+          python -m pip install buildozer setuptools cython==0.29.34
 
       - name: Build APK
         run: |
-          yes | buildozer android debug
+          buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
